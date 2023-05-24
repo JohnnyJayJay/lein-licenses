@@ -52,7 +52,7 @@ MIT                                      6
 NON-SPDX-Public-Domain                   1
 ```
 
-Use `lein licenses :output :detailed` to get detailed, per-dependency output (too long to reasonably include here).
+Use `lein licenses :detailed` to get detailed, per-dependency output (too long to reasonably include here).
 
 If you see `NON-SPDX-Unknown` license identifiers, and/or the task displays a list of dependencies with unknown licenses, **[please raise an issue here](https://github.com/pmonks/lice-comb/issues/new?assignees=pmonks&labels=unknown+licenses&template=Unknown_licenses_tools.md)**.
 
@@ -74,7 +74,7 @@ Uncategorised                  0
 For more information, please see https://github.com/pmonks/tools-licenses/wiki/FAQ
 ```
 
-Use `lein check-asf-policy :output :detailed` to get detailed, per-dependency output (too long to reasonably include here).
+Use `lein check-asf-policy :detailed` to get detailed, per-dependency output (too long to reasonably include here).
 
 ## Contributor Information
 
