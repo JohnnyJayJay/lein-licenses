@@ -15,6 +15,17 @@
 ;
 ; SPDX-License-Identifier: Apache-2.0
 ;
+; IMPORTANT NOTICE:
+; This file has been modified by JohnnyJayJay for a fork of the original project.
+; The modifications found in this file are made available under the same license as the original (Apache-2.0).
+; The modifications include:
+; - Addition of new functions
+; - Adjustments of parameter formats of existing functions
+; - Additional logic within the code
+; - Updated documentation strings.
+;
+; The original file was obtained from https://github.com/pmonks/tools-licenses.
+; The forked version can be found at https://github.com/JohnnyJayJay/lein-licenses.
 
 (ns leiningen.licenses
   "Leiningen tasks related to dependency licenses."
