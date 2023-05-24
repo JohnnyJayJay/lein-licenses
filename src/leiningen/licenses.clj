@@ -34,8 +34,7 @@
             [clojure.java.io         :as io]
             [clojure.tools.deps      :as d]
             [lice-comb.deps          :as lcd]
-            [lice-comb.files         :as lcf]
-            [asf-cat.api             :as asf]))
+            [lice-comb.files         :as lcf]))
 
 (defn- lein-dep->deps-dep
   "Translate leiningen dependency vector to Clojure deps key-value pair"
@@ -61,7 +60,7 @@
              :snapshots snapshot-opts}])
     [name {:url info}]))
 
-(defn- prep-project
+(defn prep-project
   "Prepares the project and returns the lib-map for it."
   [{:keys [dependencies local-repo repositories exclusions]}]
   (let [basis {:deps (->> dependencies (map (partial lein-dep->deps-dep exclusions)) (into {}))
@@ -71,7 +70,7 @@
         _       (d/prep-libs! lib-map {:action :prep :log :info} {})]  ; Make sure everything is "prepped" (downloaded locally) before we start looking for licenses
     lib-map))
 
-(defn- dep-and-licenses
+(defn dep-and-licenses
   [dep licenses]
   (str dep " [" (s/join ", " licenses) "]"))
 
@@ -82,12 +81,12 @@
   format    -- output format, one of :summary, :detailed, :edn. If omitted defaults to :summary
 
   Note: has the side effect of 'prepping' your project with its transitive dependencies (i.e. downloading them if they haven't already been downloaded)."
-  ([project format]
+  ([project out-format]
    (let [lib-map       (prep-project project)
          proj-licenses (lcf/dir->ids ".")
          dep-licenses  (lcd/deps-licenses lib-map)
          fq-project-name (symbol (:group project) (:name project))]
-     (case format
+     (case (read-string out-format)
        :summary  (let [freqs    (frequencies (filter identity (mapcat :lice-comb/licenses (vals dep-licenses))))
                        licenses (seq (sort (keys freqs)))]
                    (print "This project: ")
@@ -121,44 +120,4 @@
          (doall (map (partial println "  *") deps-without-licenses))
          (println "\nPlease raise an issue at https://github.com/pmonks/lice-comb/issues/new?assignees=pmonks&labels=unknown+licenses&template=Unknown_licenses_tools.md and include this list of dependencies.")))))
   ([project]
-   (licenses project :summary)))
-
-(defn check-asf-policy
-  "Checks your project's dependencies against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html).
-
-  format  -- opt: output format, one of :summary, :detailed, :edn (defaults to :summary)
-
-  Note: has the side effect of 'prepping' your project with its transitive dependencies (i.e. downloading them if they haven't already been downloaded)."
-  ([project format]
-   (let [lib-map                  (prep-project project)
-         proj-licenses            (lcf/dir->ids ".")
-         dep-licenses-by-category (group-by #(asf/least-category (:lice-comb/licenses (val %))) (lcd/deps-licenses lib-map))]
-     (when-not (seq (filter #(= "Apache-2.0" %) proj-licenses))
-       (println "Your project is not Apache-2.0 licensed, so this report will need further investigation.\n"))
-     (case format
-       :summary  (do
-                   (println "Category                       Number of Deps")
-                   (println "------------------------------ --------------")
-                   (doall
-                    (map (fn [category]
-                           (let [category-info (get asf/category-info category)]
-                             (println (format "%-30s %d" (:name category-info) (count (get dep-licenses-by-category category))))))
-                         asf/categories))
-                   (println "\nFor more information, please see https://github.com/pmonks/tools-licenses/wiki/FAQ"))
-       :detailed (do
-                   (doall
-                    (map (fn [category]
-                           (let [category-info (asf/category-info category)
-                                 dep-licenses  (seq (get dep-licenses-by-category category))]
-                             (when dep-licenses
-                               (let [dep-licenses (apply hash-map (flatten dep-licenses))]
-                                 (println (str (:name category-info) ":"))
-                                 (doall
-                                  (map #(println "  *" (dep-and-licenses % (sort asf/license-comparator (:lice-comb/licenses (get dep-licenses %)))))
-                                       (sort (keys (get dep-licenses-by-category category)))))
-                                 (println)))))
-                         asf/categories))
-                   (println "For more information, please see https://github.com/pmonks/tools-licenses/wiki/FAQ"))
-       :edn      (pp/pprint dep-licenses-by-category))))
-  ([project]
-   (check-asf-policy project :summary)))
+   (licenses project ":summary")))
