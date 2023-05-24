@@ -44,7 +44,7 @@
     :exclusions (->> exclusions
                      (concat global-exclusions)
                      (map #(cond-> % (sequential? %) first true symbol))
-                     dedupe
+                     distinct
                      vec)
     :deps/manifest extension}])
 
