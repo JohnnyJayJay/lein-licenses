@@ -6,9 +6,10 @@
 [![Latest Version](https://img.shields.io/clojars/v/com.github.pmonks/tools-licenses)](https://clojars.org/com.github.pmonks/tools-licenses/) [![Open Issues](https://img.shields.io/github/issues/pmonks/tools-licenses.svg)](https://github.com/pmonks/tools-licenses/issues) [![License](https://img.shields.io/github/license/pmonks/tools-licenses.svg)](https://github.com/pmonks/tools-licenses/blob/main/LICENSE)
 
 
-# tools-licenses
+# lein-licenses
 
-A Clojure [tools.build](https://github.com/clojure/tools.build) task library related to dependency licenses.  Somewhat inspired by the (discontinued) [`lein-licenses`](https://github.com/technomancy/lein-licenses/) Leiningen plugin, but with the added benefit of license canonicalisation (leveraging the *excellent* [Software Package Data Exchange (SPDX)](https://spdx.dev/) standard), and with the ability to check your project against the [Apache Software Foundation's 3rd Party License Policy](https://www.apache.org/legal/resolved.html).
+A [Leiningen](http://leiningen.org) plugin related to dependency licenses. A fork of [tools-licenses](https://github.com/pmonks/tools-licenses), which in turn is inspired by the already existing (discontinued) [`lein-licenses`](https://github.com/technomancy/lein-licenses/) Leiningen plugin (we've come full circle). 
+Similar to tools-licenses, this new plugin has the added benefit of license canonicalisation (leveraging the *excellent* [Software Package Data Exchange (SPDX)](https://spdx.dev/) standard) and the ability to check your project against the [Apache Software Foundation's 3rd Party License Policy](https://www.apache.org/legal/resolved.html).
 
 ## Tasks
 
@@ -19,47 +20,14 @@ A Clojure [tools.build](https://github.com/clojure/tools.build) task library rel
 
 ### Documentation
 
-[API documentation is available here](https://pmonks.github.io/tools-licenses/), though since the refactoring out of the [license detection](https://github.com/pmonks/lice-comb) and [ASF policy validation](https://github.com/pmonks/asf-cat) code, that's not very interesting or useful any longer.
-
 [FAQ is available here](https://github.com/pmonks/tools-licenses/wiki/FAQ).
 
 ### Dependency
 
-Express the correct maven dependencies in your `deps.edn`, for a build tool alias:
+Add the following to your `project.clj` `:plugins` list:
 
 ```edn
-  :aliases
-    :build
-      {:deps       {com.github.pmonks/tools-licenses {:mvn/version "LATEST_CLOJARS_VERSION"}
-                    io.github.seancorfield/build-clj {:git/tag "v0.6.7" :git/sha "22c2d09"}}
-       :ns-default your.build.ns}
-```
-
-Note that you must express an explicit dependency on `io.github.seancorfield/build-clj`, as that project [doesn't publish artifacts to Clojars yet](https://github.com/seancorfield/build-clj/issues/11), and transitive git coordinate dependencies are not supported by tools.deps.
-
-### Require the namespace
-
-```clojure
-(ns your.build.ns
-  (:require [tools-licenses.tasks :as lic]))
-```
-
-### Add one or more of the build tasks to your build
-
-```clojure
-(defn licenses
-  "Attempts to list all licenses for the transitive set of dependencies of the project, using SPDX license expressions."
-  [opts]
-  (-> opts
-      (set-opts)
-      (lic/licenses)))
-
-(defn check-asf-policy
-  "Checks this project's dependencies' licenses against the ASF's 3rd party license policy (https://www.apache.org/legal/resolved.html)."
-  [opts]
-  (-> opts
-      (set-opts)
-      (lic/check-asf-policy)))
+[com.github.johnnyjayjay/lein-licenses "0.1.0"]
 ```
 
 ### Use the build tasks
@@ -69,7 +37,7 @@ Note that you must express an explicit dependency on `io.github.seancorfield/bui
 Example summary output:
 
 ```
-$ clj -T:build licenses
+$ lein licenses
 This project: Apache-2.0
 
 License                                  Number of Deps
@@ -84,7 +52,7 @@ MIT                                      6
 NON-SPDX-Public-Domain                   1
 ```
 
-Use `clj -T:build licenses :output :detailed` to get detailed, per-dependency output (too long to reasonably include here).
+Use `lein licenses :output :detailed` to get detailed, per-dependency output (too long to reasonably include here).
 
 If you see `NON-SPDX-Unknown` license identifiers, and/or the task displays a list of dependencies with unknown licenses, **[please raise an issue here](https://github.com/pmonks/lice-comb/issues/new?assignees=pmonks&labels=unknown+licenses&template=Unknown_licenses_tools.md)**.
 
@@ -93,7 +61,7 @@ If you see `NON-SPDX-Unknown` license identifiers, and/or the task displays a li
 Example summary output:
 
 ```
-$ clj -T:build check-asf-policy
+$ lein check-asf-policy
 Category                       Number of Deps
 ------------------------------ --------------
 Category A                     79
@@ -106,38 +74,21 @@ Uncategorised                  0
 For more information, please see https://github.com/pmonks/tools-licenses/wiki/FAQ
 ```
 
-Use `clj -T:build check-asf-policy :output :detailed` to get detailed, per-dependency output (too long to reasonably include here).
+Use `lein check-asf-policy :output :detailed` to get detailed, per-dependency output (too long to reasonably include here).
 
 ## Contributor Information
 
-[Contributing Guidelines](https://github.com/pmonks/tools-licenses/blob/main/.github/CONTRIBUTING.md)
+[Contributor Guidelines](https://github.com/JohnnyJayJay/lein-licenses/blob/main/.github/CONTRIBUTING.md)
 
-[Bug Tracker](https://github.com/pmonks/tools-licenses/issues)
+[Bug Tracker](https://github.com/JohnnyJayJay/lein-licenses/issues)
 
-[Code of Conduct](https://github.com/pmonks/tools-licenses/blob/main/.github/CODE_OF_CONDUCT.md)
+[Code of Conduct](https://github.com/JohnnyJayJay/lein-licenses/blob/main/.github/CODE_OF_CONDUCT.md)
 
 ### Developer Workflow
 
 This project uses the [git-flow branching strategy](https://nvie.com/posts/a-successful-git-branching-model/), with the caveat that the permanent branches are called `main` and `dev`, and any changes to the `main` branch are considered a release and auto-deployed (JARs to Clojars, API docs to GitHub Pages, etc.).
 
 For this reason, **all development must occur either in branch `dev`, or (preferably) in temporary branches off of `dev`.**  All PRs from forked repos must also be submitted against `dev`; the `main` branch is **only** updated from `dev` via PRs created by the core development team.  All other changes submitted to `main` will be rejected.
-
-### Build Tasks
-
-`tools-licenses` uses [`tools.build`](https://clojure.org/guides/tools_build). You can get a list of available tasks by running:
-
-```
-clojure -A:deps -T:build help/doc
-```
-
-Of particular interest are:
-
-* `clojure -T:build test` - run the unit tests
-* `clojure -T:build lint` - run the linters (clj-kondo and eastwood)
-* `clojure -T:build ci` - run the full CI suite (check for outdated dependencies, run the unit tests, run the linters)
-* `clojure -T:build install` - build the JAR and install it locally (e.g. so you can test it with downstream code)
-
-Please note that the `deploy` task is restricted to the core development team (and will not function if you run it yourself).
 
 ## License
 
