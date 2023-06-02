@@ -1,4 +1,4 @@
-(defproject com.github.johnnyjayjay/lein-licenses "0.1.0"
+(defproject com.github.johnnyjayjay/lein-licenses "0.2.0"
   :description "A Leiningen plugin related to dependency licenses."
   :url "https://github.com/JohnnyJayJay/lein-licenses"
   :license {:name "Apache-2.0"

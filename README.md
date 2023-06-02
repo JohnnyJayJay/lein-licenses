@@ -23,7 +23,7 @@ Similar to tools-licenses, this new plugin has the added benefit of license cano
 Add the following to your `project.clj` `:plugins` list:
 
 ```edn
-[com.github.johnnyjayjay/lein-licenses "0.1.0"]
+[com.github.johnnyjayjay/lein-licenses "0.2.0"]
 ```
 
 ### Use the build tasks
