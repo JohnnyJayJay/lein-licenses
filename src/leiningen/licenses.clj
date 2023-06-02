@@ -1,5 +1,5 @@
 ;
-; Copyright © 2021 Peter Monks
+; Copyright © 2021, 2023 Peter Monks, JohnnyJayJay
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -60,14 +60,17 @@
              :snapshots snapshot-opts}])
     [name {:url info}]))
 
+(defn lein-deps->lib-map [exclusions dependencies]
+  (->> dependencies (map (partial lein-dep->deps-dep exclusions)) (into {})))
+
 (defn prep-project
   "Prepares the project and returns the lib-map for it."
-  [{:keys [dependencies local-repo repositories exclusions]}]
-  (let [basis {:deps (->> dependencies (map (partial lein-dep->deps-dep exclusions)) (into {}))
+  [{:keys [dependencies local-repo repositories exclusions managed-dependencies]}]
+  (let [basis {:deps (lein-deps->lib-map exclusions dependencies)
                :mvn/repos (->> repositories (map lein-repo->deps-repo) (into {}))
                :mvn/local-repo local-repo}
-        lib-map (d/resolve-deps basis {})
-        _       (d/prep-libs! lib-map {:action :prep :log :info} {})]  ; Make sure everything is "prepped" (downloaded locally) before we start looking for licenses
+        lib-map (d/resolve-deps basis {:override-deps (lein-deps->lib-map exclusions managed-dependencies)})]
+    (d/prep-libs! lib-map {:action :prep :log :info} {}) ; Make sure everything is "prepped" (downloaded locally) before we start looking for licenses
     lib-map))
 
 (defn dep-and-licenses
